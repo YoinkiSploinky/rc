@@ -1,19 +1,21 @@
 import pygame
 import time
-from gpiozero import PWMOutputDevice
+from gpiozero import LED
 
 # Initialize Pygame
 pygame.init()
 
-# Set up PWM for controlling motors (GPIO pins)
-PWM_PIN_LEFT = 17  # Left motor PWM pin
-PWM_PIN_RIGHT = 18  # Right motor PWM pin
+# Set up GPIO pins for controlling motors (LEDs to simulate motor control)
+PIN_LEFT = 17  # Left motor pin
+PIN_RIGHT = 18  # Right motor pin
 
-pwm_left = PWMOutputDevice(PWM_PIN_LEFT, frequency=100)  # 100Hz frequency
-pwm_right = PWMOutputDevice(PWM_PIN_RIGHT, frequency=100)  # 100Hz frequency
+left_motor = LED(PIN_LEFT)  # Left motor control (ON/OFF)
+right_motor = LED(PIN_RIGHT)  # Right motor control (ON/OFF)
 
-# Set deadzone threshold (ignores values above 0.8 or below -0.8)
-DEADZONE_MIN = -0.8
+# Set thresholds for detecting input
+THRESHOLD_MIN = 0.1
+THRESHOLD_MAX = 0.8
+DEADZONE_MIN = -0.1
 DEADZONE_MAX = 0.8
 
 # Initialize joystick
@@ -34,27 +36,21 @@ try:
         left_right = joystick.get_axis(0)  # Left/Right axis (X-axis)
         forward_reverse = joystick.get_axis(1)  # Forward/Reverse axis (Y-axis)
 
-        # Apply deadzone (ignore values above 0.8 or below -0.8)
-        if left_right > DEADZONE_MAX or left_right < DEADZONE_MIN:
-            left_right = 0.0  # Ignore input if it's outside the range
-        if forward_reverse > DEADZONE_MAX or forward_reverse < DEADZONE_MIN:
-            forward_reverse = 0.0  # Ignore input if it's outside the range
-
-        # Control left motor (forward/reverse)
-        if forward_reverse < 0:
-            pwm_left.value = abs(forward_reverse)  # Forward
-        elif forward_reverse > 0:
-            pwm_left.value = abs(forward_reverse)  # Reverse
+        # Check if left/right axis is within threshold for left/right movement
+        if left_right > THRESHOLD_MIN and left_right < THRESHOLD_MAX:
+            left_motor.on()  # Move left
+        elif left_right < DEADZONE_MIN and left_right > -DEADZONE_MAX:
+            left_motor.on()  # Move right
         else:
-            pwm_left.value = 0  # Stop
+            left_motor.off()  # Stop
 
-        # Control right motor (left/right)
-        if left_right < 0:
-            pwm_right.value = abs(left_right)  # Move left
-        elif left_right > 0:
-            pwm_right.value = abs(left_right)  # Move right
+        # Check if forward/reverse axis is within threshold for forward/reverse movement
+        if forward_reverse > THRESHOLD_MIN and forward_reverse < THRESHOLD_MAX:
+            right_motor.on()  # Move forward
+        elif forward_reverse < DEADZONE_MIN and forward_reverse > -DEADZONE_MAX:
+            right_motor.on()  # Move reverse
         else:
-            pwm_right.value = 0  # Stop
+            right_motor.off()  # Stop
 
         # Print the values (debugging purposes)
         if left_right != 0 or forward_reverse != 0:
