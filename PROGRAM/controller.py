@@ -2,11 +2,11 @@ import inputs
 import time
 from gpiozero import PWMOutputDevice
 
-# Define GPIO pins for PWM (assuming you have four available pins)
-PWM_PIN_FORWARD = 17  # GPIO pin for Forward
-PWM_PIN_REVERSE = 18  # GPIO pin for Reverse
-PWM_PIN_LEFT = 22     # GPIO pin for Left
-PWM_PIN_RIGHT = 23    # GPIO pin for Right
+# Define GPIO pins for PWM (using valid PWM-supporting pins)
+PWM_PIN_FORWARD = 18  # GPIO pin for Forward (supports PWM)
+PWM_PIN_REVERSE = 19  # GPIO pin for Reverse (supports PWM)
+PWM_PIN_LEFT = 12     # GPIO pin for Left (supports PWM)
+PWM_PIN_RIGHT = 13    # GPIO pin for Right (supports PWM)
 
 # Set up GPIO Zero for PWM control (50Hz frequency by default)
 pwm_forward = PWMOutputDevice(PWM_PIN_FORWARD)
@@ -22,11 +22,11 @@ def map_joystick_to_pwm(axis_value, deadzone):
     if abs(axis_value) < deadzone:
         return 0  # Neutral position
 
-    # Map the joystick value (from -32767 to 32767) to a PWM duty cycle (0 to 100)
+    # Map the joystick value (from -32767 to 32767) to a PWM duty cycle (0 to 1)
     if axis_value > 0:
-        pwm_value = (axis_value - deadzone) / (32767 - deadzone) * 1
+        pwm_value = (axis_value - deadzone) / (32767 - deadzone)
     else:
-        pwm_value = (axis_value + deadzone) / (32767 - deadzone) * 1
+        pwm_value = (axis_value + deadzone) / (32767 - deadzone)
 
     # Ensure the PWM value is within the range [0, 1]
     pwm_value = max(0, min(1, pwm_value))
@@ -35,7 +35,7 @@ def map_joystick_to_pwm(axis_value, deadzone):
 def read_controller():
     print("Starting to read the controller inputs...")
     while True:
-        events = inputs.get_key()  # Get input events (button presses, joystick movements, etc.)
+        events = inputs.get_gamepad()  # Get input events (button presses, joystick movements, etc.)
         for event in events:
             if event.ev_type == 'Absolute':
                 if event.ev_code == 'ABS_X':  # X-axis (left-right)
