@@ -15,10 +15,10 @@ joystick = pygame.joystick.Joystick(0)
 joystick.init()
 
 # Define PWM pins (update these with your actual GPIO pin numbers)
-PWM_PIN_LEFT = 12  # GPIO 12 for left movement (example pin)
-PWM_PIN_RIGHT = 13  # GPIO 13 for right movement (example pin)
-PWM_PIN_FORWARD = 17  # GPIO 17 for forward movement (example pin)
-PWM_PIN_REVERSE = 18  # GPIO 18 for reverse movement (example pin)
+PWM_PIN_LEFT = 12  # GPIO 12 for left motor
+PWM_PIN_RIGHT = 13  # GPIO 13 for right motor
+PWM_PIN_FORWARD = 17  # GPIO 17 for forward motor
+PWM_PIN_REVERSE = 18  # GPIO 18 for reverse motor
 
 # Initialize PWMOutputDevices
 pwm_left = PWMOutputDevice(PWM_PIN_LEFT)
@@ -56,16 +56,4 @@ try:
             print(f"Moving forward with value {forward_value}")
 
         # Adjust PWM signals based on joystick input
-        # Left movement (Negative X-axis -> Negative PWM for left motor, Positive for right motor)
-        pwm_left.value = map_joystick_to_pwm(left_value)  # Left motor moves forward when negative
-        pwm_right.value = map_joystick_to_pwm(-left_value)  # Right motor moves forward when positive
-
-        # Forward movement (Negative Y-axis -> Negative PWM for forward)
-        pwm_forward.value = map_joystick_to_pwm(-forward_value)  # Forward motor moves forward when negative
-        pwm_reverse.value = map_joystick_to_pwm(forward_value)  # Reverse motor moves forward when positive
-
-        time.sleep(0.1)
-
-except KeyboardInterrupt:
-    print("Program terminated by user.")
-    pygame.quit()
+        # Left movement 
