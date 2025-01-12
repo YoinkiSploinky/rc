@@ -49,9 +49,11 @@ try:
         left_value = apply_deadzone(left_value)
         forward_value = apply_deadzone(forward_value)
 
-        # Print values to verify them
-        print(f"Moving left with value {left_value}")
-        print(f"Moving forward with value {forward_value}")
+        # Only print values if they are not zero
+        if abs(left_value) > 0.01:
+            print(f"Moving left with value {left_value}")
+        if abs(forward_value) > 0.01:
+            print(f"Moving forward with value {forward_value}")
 
         # Adjust PWM signals based on joystick input
         pwm_left.value = map_joystick_to_pwm(left_value)
