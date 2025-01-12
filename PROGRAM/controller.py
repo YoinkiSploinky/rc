@@ -51,30 +51,35 @@ try:
 
         # Only print values if they are not zero
         if abs(left_value) > 0.01:
-            print(f"Moving left with value {left_value}")
+            print(f"Moving left/right with value {left_value}")
         if abs(forward_value) > 0.01:
-            print(f"Moving forward with value {forward_value}")
+            print(f"Moving forward/reverse with value {forward_value}")
 
         # Adjust PWM signals based on joystick input
         # Left movement (Negative X-axis -> Negative PWM for left motor, Positive for right motor)
-        if left_value < 0:
+        if left_value < 0:  # Moving left
             pwm_left.value = map_joystick_to_pwm(left_value)  # Left motor moves forward when negative
             pwm_right.value = 0  # Right motor stops when moving left
-        else:
+        elif left_value > 0:  # Moving right
             pwm_right.value = map_joystick_to_pwm(left_value)  # Right motor moves forward when positive
             pwm_left.value = 0  # Left motor stops when moving right
+        else:
+            pwm_left.value = 0  # Stop both motors if no left/right movement
+            pwm_right.value = 0
 
         # Forward movement (Negative Y-axis -> Negative PWM for forward motor)
-        if forward_value < 0:
+        if forward_value < 0:  # Moving forward
             pwm_forward.value = map_joystick_to_pwm(forward_value)  # Forward motor moves forward when negative
             pwm_reverse.value = 0  # Reverse motor stops when moving forward
-        else:
+        elif forward_value > 0:  # Moving reverse
             pwm_reverse.value = map_joystick_to_pwm(forward_value)  # Reverse motor moves forward when positive
             pwm_forward.value = 0  # Forward motor stops when moving reverse
+        else:
+            pwm_forward.value = 0  # Stop both motors if no forward/reverse movement
+            pwm_reverse.value = 0
 
         time.sleep(0.1)
 
 except KeyboardInterrupt:
     print("Program terminated by user.")
     pygame.quit()
-
