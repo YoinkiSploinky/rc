@@ -1,73 +1,88 @@
 import pygame
-import time
 from gpiozero import LED
+import time
 
-# Initialize Pygame
+# Initialize pygame and joystick
 pygame.init()
-
-# Set up GPIO pins for controlling motors (LEDs to simulate motor control)
-PIN_LEFT = 17  # Left motor pin
-PIN_RIGHT = 18  # Right motor pin
-PIN_FORWARD = 22  # Forward motor pin
-PIN_REVERSE = 23  # Reverse motor pin
-
-left_motor = LED(PIN_LEFT)  # Left motor control (ON/OFF)
-right_motor = LED(PIN_RIGHT)  # Right motor control (ON/OFF)
-forward_motor = LED(PIN_FORWARD)  # Forward motor control (ON/OFF)
-reverse_motor = LED(PIN_REVERSE)  # Reverse motor control (ON/OFF)
-
-# Set thresholds for detecting input
-THRESHOLD = 0.1  # Ignore values below this threshold
-DEADZONE = 0.1  # Small deadzone for joystick
-
-# Initialize joystick
 pygame.joystick.init()
-if pygame.joystick.get_count() < 1:
-    print("No joystick found!")
+
+# Check if joystick is connected
+if pygame.joystick.get_count() == 0:
+    print("No joystick detected!")
     exit()
 
 joystick = pygame.joystick.Joystick(0)
 joystick.init()
 
+# Define GPIO pins for the motors
+PIN_LEFT = 12  # GPIO 12 for left motor
+PIN_RIGHT = 13  # GPIO 13 for right motor
+PIN_FORWARD = 17  # GPIO 17 for forward motor
+PIN_REVERSE = 18  # GPIO 18 for reverse motor
+
+# Initialize LED objects (to control the motors)
+left_motor = LED(PIN_LEFT)
+right_motor = LED(PIN_RIGHT)
+forward_motor = LED(PIN_FORWARD)
+reverse_motor = LED(PIN_REVERSE)
+
+# Function to apply deadzone to joystick values
+def apply_deadzone(value, deadzone=0.01):
+    if abs(value) < deadzone:
+        return 0.0  # Ignore small movements
+    return value
+
+# Track previous values to reduce spamming
+prev_left_value = 0.0
+prev_forward_value = 0.0
+
 # Main loop
 try:
     while True:
-        pygame.event.pump()
+        pygame.event.pump()  # Process events
+        
+        # Get joystick axis values (left-right and forward-backward)
+        left_value = joystick.get_axis(0)  # Axis 0: Left/Right (X axis)
+        forward_value = joystick.get_axis(1)  # Axis 1: Forward/Backward (Y axis)
 
-        # Read the joystick axes (left/right and forward/reverse)
-        left_right = joystick.get_axis(0)  # Left/Right axis (X-axis)
-        forward_reverse = joystick.get_axis(1)  # Forward/Reverse axis (Y-axis)
+        # Apply deadzone to joystick values
+        left_value = apply_deadzone(left_value)
+        forward_value = apply_deadzone(forward_value)
 
-        # Left/Right movement control
-        if left_right > THRESHOLD:
-            left_motor.on()  # Move left
-            right_motor.off()  # Stop right
-        elif left_right < -THRESHOLD:
-            right_motor.on()  # Move right
-            left_motor.off()  # Stop left
-        else:
-            left_motor.off()  # Stop left
-            right_motor.off()  # Stop right
+        # Left/Right Movement
+        if left_value < 0 and left_value != prev_left_value:  # Moving left
+            left_motor.on()  # Turn left motor ON
+            right_motor.off()  # Turn right motor OFF
+            print(f"Moving left with value {left_value}")
+        elif left_value > 0 and left_value != prev_left_value:  # Moving right
+            right_motor.on()  # Turn right motor ON
+            left_motor.off()  # Turn left motor OFF
+            print(f"Moving right with value {left_value}")
+        elif left_value == 0 and prev_left_value != 0:  # Stopped left/right
+            left_motor.off()  # Stop left motor
+            right_motor.off()  # Stop right motor
+            print("Stopped left/right movement.")
 
-        # Forward/Reverse movement control
-        if forward_reverse > THRESHOLD:
-            forward_motor.on()  # Move forward
-            reverse_motor.off()  # Stop reverse
-        elif forward_reverse < -THRESHOLD:
-            reverse_motor.on()  # Move reverse
-            forward_motor.off()  # Stop forward
-        else:
-            forward_motor.off()  # Stop forward
-            reverse_motor.off()  # Stop reverse
+        # Forward/Reverse Movement
+        if forward_value < 0 and forward_value != prev_forward_value:  # Moving forward
+            forward_motor.on()  # Turn forward motor ON
+            reverse_motor.off()  # Turn reverse motor OFF
+            print(f"Moving forward with value {forward_value}")
+        elif forward_value > 0 and forward_value != prev_forward_value:  # Moving reverse
+            reverse_motor.on()  # Turn reverse motor ON
+            forward_motor.off()  # Turn forward motor OFF
+            print(f"Moving reverse with value {forward_value}")
+        elif forward_value == 0 and prev_forward_value != 0:  # Stopped forward/reverse
+            forward_motor.off()  # Stop forward motor
+            reverse_motor.off()  # Stop reverse motor
+            print("Stopped forward/reverse movement.")
 
-        # Print the values (debugging purposes)
-        if left_right != 0 or forward_reverse != 0:
-            print(f"Left/Right: {left_right}, Forward/Reverse: {forward_reverse}")
+        # Save previous values to avoid spamming
+        prev_left_value = left_value
+        prev_forward_value = forward_value
 
         time.sleep(0.1)
 
 except KeyboardInterrupt:
-    print("Program interrupted")
-
-finally:
+    print("Program terminated by user.")
     pygame.quit()
