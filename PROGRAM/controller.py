@@ -1,50 +1,56 @@
 import pygame
+from gpiozero import PWMOutputDevice
 import time
 
-# Initialize pygame
+# Initialize pygame and joystick
 pygame.init()
+pygame.joystick.init()
 
-# Check the number of joysticks connected
-joystick_count = pygame.joystick.get_count()
-print(f"Number of joysticks detected: {joystick_count}")
-
-if joystick_count > 0:
-    joystick = pygame.joystick.Joystick(0)
-    joystick.init()
-else:
-    print("No joystick found")
-    pygame.quit()
+# Check if joystick is connected
+if pygame.joystick.get_count() == 0:
+    print("No joystick detected!")
     exit()
 
-# Loop to read joystick inputs
-print("Reading controller input...")
+joystick = pygame.joystick.Joystick(0)
+joystick.init()
 
+# Define PWM pins (update these with your actual GPIO pin numbers)
+PWM_PIN_LEFT = 12  # GPIO 12 for left movement (example pin)
+PWM_PIN_RIGHT = 13  # GPIO 13 for right movement (example pin)
+PWM_PIN_FORWARD = 17  # GPIO 17 for forward movement (example pin)
+PWM_PIN_REVERSE = 18  # GPIO 18 for reverse movement (example pin)
+
+# Initialize PWMOutputDevices
+pwm_left = PWMOutputDevice(PWM_PIN_LEFT)
+pwm_right = PWMOutputDevice(PWM_PIN_RIGHT)
+pwm_forward = PWMOutputDevice(PWM_PIN_FORWARD)
+pwm_reverse = PWMOutputDevice(PWM_PIN_REVERSE)
+
+# Function to map joystick axis to PWM signal
+def map_joystick_to_pwm(value, min_value=-1.0, max_value=1.0, min_pwm=0.0, max_pwm=1.0):
+    return (value - min_value) / (max_value - min_value) * (max_pwm - min_pwm) + min_pwm
+
+# Main loop
 try:
     while True:
-        pygame.event.pump()  # Refresh the joystick state
+        pygame.event.pump()  # Process events
+        
+        # Get joystick axis values (left-right and forward-backward)
+        left_value = joystick.get_axis(0)  # Axis 0: Left/Right (X axis)
+        forward_value = joystick.get_axis(1)  # Axis 1: Forward/Backward (Y axis)
 
-        # Read joystick axis values (left-right, up-down)
-        x_axis = joystick.get_axis(0)  # Left/Right Axis
-        y_axis = joystick.get_axis(1)  # Up/Down Axis
+        # Print values to verify them
+        print(f"Moving left with value {left_value}")
+        print(f"Moving forward with value {forward_value}")
 
-        # Read button values (if needed, e.g., button 0, 1)
-        button_0 = joystick.get_button(0)  # Button 0 press
-        button_1 = joystick.get_button(1)  # Button 1 press
+        # Adjust PWM signals based on joystick input
+        pwm_left.value = map_joystick_to_pwm(left_value)
+        pwm_right.value = map_joystick_to_pwm(-left_value)  # Reverse direction for right motor
+        pwm_forward.value = map_joystick_to_pwm(-forward_value)  # Reverse direction for forward movement
+        pwm_reverse.value = map_joystick_to_pwm(forward_value)  # Reverse direction for reverse movement
 
-        # Print axis movements (values range from -1.0 to 1.0)
-        if abs(x_axis) > 0.1 or abs(y_axis) > 0.1:  # Only print if the axis moves
-            print(f"Moving left with value {x_axis}")
-            print(f"Moving forward with value {y_axis}")
-
-        # Example: Stop if button 0 is pressed
-        if button_0:
-            print("Button 0 pressed, stopping...")
-            break
-
-        time.sleep(0.1)  # Slight delay to prevent overloading the output
+        time.sleep(0.1)
 
 except KeyboardInterrupt:
     print("Program terminated by user.")
-
-finally:
     pygame.quit()
