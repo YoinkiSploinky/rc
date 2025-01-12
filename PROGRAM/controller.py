@@ -36,6 +36,10 @@ def apply_deadzone(value, deadzone=0.01):
         return 0.0  # Ignore small movements
     return value
 
+# Track previous values to reduce spamming
+prev_left_value = 0.0
+prev_forward_value = 0.0
+
 # Main loop
 try:
     while True:
@@ -50,32 +54,36 @@ try:
         forward_value = apply_deadzone(forward_value)
 
         # Left/Right Movement
-        if left_value < 0:  # Moving left
+        if left_value < 0 and left_value != prev_left_value:  # Moving left
             pwm_left.value = map_joystick_to_pwm(left_value)  # Left motor moves forward when negative
             pwm_right.value = 0  # Right motor stops when moving left
             print(f"Moving left with value {left_value}")
-        elif left_value > 0:  # Moving right
+        elif left_value > 0 and left_value != prev_left_value:  # Moving right
             pwm_right.value = map_joystick_to_pwm(left_value)  # Right motor moves forward when positive
             pwm_left.value = 0  # Left motor stops when moving right
             print(f"Moving right with value {left_value}")
-        else:
+        elif left_value == 0 and prev_left_value != 0:  # Stopped left/right
             pwm_left.value = 0  # Stop left motor if no left/right movement
             pwm_right.value = 0  # Stop right motor if no left/right movement
-            print("No left/right movement detected.")
+            print("Stopped left/right movement.")
 
         # Forward/Reverse Movement
-        if forward_value < 0:  # Moving forward
+        if forward_value < 0 and forward_value != prev_forward_value:  # Moving forward
             pwm_forward.value = map_joystick_to_pwm(forward_value)  # Forward motor moves forward when negative
             pwm_reverse.value = 0  # Reverse motor stops when moving forward
             print(f"Moving forward with value {forward_value}")
-        elif forward_value > 0:  # Moving reverse
+        elif forward_value > 0 and forward_value != prev_forward_value:  # Moving reverse
             pwm_reverse.value = map_joystick_to_pwm(forward_value)  # Reverse motor moves forward when positive
             pwm_forward.value = 0  # Forward motor stops when moving reverse
             print(f"Moving reverse with value {forward_value}")
-        else:
+        elif forward_value == 0 and prev_forward_value != 0:  # Stopped forward/reverse
             pwm_forward.value = 0  # Stop forward motor if no forward/reverse movement
             pwm_reverse.value = 0  # Stop reverse motor if no forward/reverse movement
-            print("No forward/reverse movement detected.")
+            print("Stopped forward/reverse movement.")
+
+        # Save previous values to avoid spamming
+        prev_left_value = left_value
+        prev_forward_value = forward_value
 
         time.sleep(0.1)
 
