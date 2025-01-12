@@ -8,15 +8,17 @@ pygame.init()
 # Set up GPIO pins for controlling motors (LEDs to simulate motor control)
 PIN_LEFT = 17  # Left motor pin
 PIN_RIGHT = 18  # Right motor pin
+PIN_FORWARD = 22  # Forward motor pin
+PIN_REVERSE = 23  # Reverse motor pin
 
 left_motor = LED(PIN_LEFT)  # Left motor control (ON/OFF)
 right_motor = LED(PIN_RIGHT)  # Right motor control (ON/OFF)
+forward_motor = LED(PIN_FORWARD)  # Forward motor control (ON/OFF)
+reverse_motor = LED(PIN_REVERSE)  # Reverse motor control (ON/OFF)
 
 # Set thresholds for detecting input
-THRESHOLD_MIN = 0.1
-THRESHOLD_MAX = 0.8
-DEADZONE_MIN = -0.1
-DEADZONE_MAX = 0.8
+THRESHOLD = 0.1  # Ignore values below this threshold
+DEADZONE = 0.1  # Small deadzone for joystick
 
 # Initialize joystick
 pygame.joystick.init()
@@ -36,21 +38,27 @@ try:
         left_right = joystick.get_axis(0)  # Left/Right axis (X-axis)
         forward_reverse = joystick.get_axis(1)  # Forward/Reverse axis (Y-axis)
 
-        # Check if left/right axis is within threshold for left/right movement
-        if left_right > THRESHOLD_MIN and left_right < THRESHOLD_MAX:
+        # Left/Right movement control
+        if left_right > THRESHOLD:
             left_motor.on()  # Move left
-        elif left_right < DEADZONE_MIN and left_right > -DEADZONE_MAX:
-            left_motor.on()  # Move right
+            right_motor.off()  # Stop right
+        elif left_right < -THRESHOLD:
+            right_motor.on()  # Move right
+            left_motor.off()  # Stop left
         else:
-            left_motor.off()  # Stop
+            left_motor.off()  # Stop left
+            right_motor.off()  # Stop right
 
-        # Check if forward/reverse axis is within threshold for forward/reverse movement
-        if forward_reverse > THRESHOLD_MIN and forward_reverse < THRESHOLD_MAX:
-            right_motor.on()  # Move forward
-        elif forward_reverse < DEADZONE_MIN and forward_reverse > -DEADZONE_MAX:
-            right_motor.on()  # Move reverse
+        # Forward/Reverse movement control
+        if forward_reverse > THRESHOLD:
+            forward_motor.on()  # Move forward
+            reverse_motor.off()  # Stop reverse
+        elif forward_reverse < -THRESHOLD:
+            reverse_motor.on()  # Move reverse
+            forward_motor.off()  # Stop forward
         else:
-            right_motor.off()  # Stop
+            forward_motor.off()  # Stop forward
+            reverse_motor.off()  # Stop reverse
 
         # Print the values (debugging purposes)
         if left_right != 0 or forward_reverse != 0:
