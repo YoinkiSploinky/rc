@@ -44,7 +44,7 @@ try:
         if forward_reverse < 0:
             pwm_left.value = abs(forward_reverse)  # Forward
         elif forward_reverse > 0:
-            pwm_left.value = -abs(forward_reverse)  # Reverse
+            pwm_left.value = abs(forward_reverse)  # Reverse
         else:
             pwm_left.value = 0  # Stop
 
@@ -52,7 +52,7 @@ try:
         if left_right < 0:
             pwm_right.value = abs(left_right)  # Move left
         elif left_right > 0:
-            pwm_right.value = -abs(left_right)  # Move right
+            pwm_right.value = abs(left_right)  # Move right
         else:
             pwm_right.value = 0  # Stop
 
