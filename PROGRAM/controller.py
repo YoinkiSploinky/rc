@@ -2,11 +2,11 @@ import inputs
 import time
 from gpiozero import PWMOutputDevice
 
-# Define GPIO pins for PWM (using valid PWM-supporting pins)
-PWM_PIN_FORWARD = 12  # GPIO pin for Forward (supports PWM)
-PWM_PIN_REVERSE = 13  # GPIO pin for Reverse (supports PWM)
-PWM_PIN_LEFT = 22     # GPIO pin for Left (supports PWM)
-PWM_PIN_RIGHT = 23    # GPIO pin for Right (supports PWM)
+# Define GPIO pins for PWM (using valid PWM-supporting pins for Pi Zero W)
+PWM_PIN_FORWARD = 18  # GPIO pin for Forward (supports PWM on Pi Zero W)
+PWM_PIN_REVERSE = 13  # GPIO pin for Reverse (supports PWM on Pi Zero W)
+PWM_PIN_LEFT = 12     # GPIO pin for Left (supports PWM on Pi Zero W)
+PWM_PIN_RIGHT = 19    # GPIO pin for Right (supports PWM on Pi Zero W)
 
 # Set up GPIO Zero for PWM control (50Hz frequency by default)
 pwm_forward = PWMOutputDevice(PWM_PIN_FORWARD)
