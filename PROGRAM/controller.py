@@ -1,12 +1,11 @@
 import inputs
 import time
 from gpiozero import PWMLED, Device
-from gpiozero.pins.native import NativeGPIOPin
 from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero.pins.rpigpio import RPiGPIOFactory
 
 # Ensure all pins are supported before use.
-# Use PiGPIO or RPi.GPIO if available; otherwise, fallback to native GPIO.
+# Use PiGPIO or RPi.GPIO if available; otherwise, fallback to software PWM.
 
 try:
     # Try to use PiGPIO (hardware PWM support)
@@ -20,9 +19,9 @@ except ImportError:
         Device.pin_factory = RPiGPIOFactory()
         print("Using RPi.GPIO for hardware PWM")
     except ImportError:
-        # Fall back to Native GPIO if no hardware PWM factory found
-        Device.pin_factory = NativeGPIOPin()
-        print("Using Native GPIO (Software PWM)")
+        # Default to software PWM if no hardware PWM found
+        Device.pin_factory = None
+        print("Using software PWM (No hardware PWM available)")
 
 # GPIO pin definitions for PWM (choose PWM-capable pins)
 PWM_PIN_FORWARD = 18  # Hardware PWM pin (GPIO18)
