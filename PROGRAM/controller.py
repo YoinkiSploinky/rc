@@ -56,10 +56,13 @@ try:
             print(f"Moving forward with value {forward_value}")
 
         # Adjust PWM signals based on joystick input
-        pwm_left.value = map_joystick_to_pwm(left_value)
-        pwm_right.value = map_joystick_to_pwm(-left_value)  # Reverse direction for right motor
-        pwm_forward.value = map_joystick_to_pwm(-forward_value)  # Reverse direction for forward movement
-        pwm_reverse.value = map_joystick_to_pwm(forward_value)  # Reverse direction for reverse movement
+        # Left movement (Negative X-axis -> Negative PWM for left motor, Positive for right motor)
+        pwm_left.value = map_joystick_to_pwm(left_value)  # Left motor moves forward when negative
+        pwm_right.value = map_joystick_to_pwm(-left_value)  # Right motor moves forward when positive
+
+        # Forward movement (Negative Y-axis -> Negative PWM for forward)
+        pwm_forward.value = map_joystick_to_pwm(-forward_value)  # Forward motor moves forward when negative
+        pwm_reverse.value = map_joystick_to_pwm(forward_value)  # Reverse motor moves forward when positive
 
         time.sleep(0.1)
 
