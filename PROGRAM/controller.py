@@ -1,18 +1,20 @@
 import pygame
+import time
+from gpiozero import LED
 
-pygame.joystick.init()
+# Initialize Pygame without video (only joystick)
+pygame.joystick.init()  # Initialize joystick system only
 
 if pygame.joystick.get_count() == 0:
-    print("No jablo connected dumbass")
+    print("No joystick connected dumbass!")
     exit()
 
 joystick = pygame.joystick.Joystick(0)
-joystick.init
+joystick.init()
 
-print("Jablo connected buenos dias puta!")
+print("Joystick connected, buenos dias puta!")
 
-from gpiozero import LED
-
+# GPIO pins setup
 PIN_LEFT = 18
 PIN_RIGHT = 13
 PIN_FORWARD = 17
@@ -21,12 +23,12 @@ PIN_REVERSE = 27
 left_motor = LED(PIN_LEFT)
 right_motor = LED(PIN_RIGHT)
 forward_motor = LED(PIN_FORWARD)
-reverse_motor = LED (PIN_REVERSE)
+reverse_motor = LED(PIN_REVERSE)
 
 def apply_deadzone(value, deadzone=0.1):
     if abs(value) < deadzone:
         return 0.0
-        return value
+    return value
 
 prev_left_value = 0.0
 prev_forward_value = 0.0
@@ -76,4 +78,4 @@ try:
 
 except KeyboardInterrupt:
     print("Program terminated by user.")
-    pygame.quit()
+    pygame.quit()  # Quit pygame properly
