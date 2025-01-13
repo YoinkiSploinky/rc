@@ -1,6 +1,5 @@
 import pygame
 
-pygame.init
 pygame.joystick.init()
 
 if pygame.joystick.get_count() == 0:
