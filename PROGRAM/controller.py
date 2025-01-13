@@ -2,11 +2,11 @@ import pygame
 import time
 from gpiozero import LED
 
-# Initialize Pygame without video (only joystick)
-pygame.joystick.init()  # Initialize joystick system only
+# Initialize only the joystick system, no need for video initialization
+pygame.joystick.init()
 
 if pygame.joystick.get_count() == 0:
-    print("No joystick connected dumbass!")
+    print("No joystick connected dumbass")
     exit()
 
 joystick = pygame.joystick.Joystick(0)
@@ -36,8 +36,6 @@ prev_forward_value = 0.0
 # Main loop
 try:
     while True:
-        pygame.event.pump()  # Process events
-        
         # Get joystick axis values (left-right and forward-backward)
         left_value = joystick.get_axis(0)  # Axis 0: Left/Right (X axis)
         forward_value = joystick.get_axis(1)  # Axis 1: Forward/Backward (Y axis)
