@@ -1,38 +1,34 @@
 import pygame
-from gpiozero import LED
-import time
 
-# Initialize pygame and joystick
-pygame.init()
+pygame.init
 pygame.joystick.init()
 
-# Check if joystick is connected
 if pygame.joystick.get_count() == 0:
-    print("No joystick detected!")
+    print("No jablo connected dumbass")
     exit()
 
 joystick = pygame.joystick.Joystick(0)
-joystick.init()
+joystick.init
 
-# Define GPIO pins for the motors
-PIN_LEFT = 12  # GPIO 12 for left motor
-PIN_RIGHT = 13  # GPIO 13 for right motor
-PIN_FORWARD = 17  # GPIO 17 for forward motor
-PIN_REVERSE = 18  # GPIO 18 for reverse motor
+print("Jablo connected buenos dias puta!")
 
-# Initialize LED objects (to control the motors)
+from gpiozero import LED
+
+PIN_LEFT = 18
+PIN_RIGHT = 13
+PIN_FORWARD = 17
+PIN_REVERSE = 27
+
 left_motor = LED(PIN_LEFT)
 right_motor = LED(PIN_RIGHT)
 forward_motor = LED(PIN_FORWARD)
-reverse_motor = LED(PIN_REVERSE)
+reverse_motor = LED (PIN_REVERSE)
 
-# Function to apply deadzone to joystick values
-def apply_deadzone(value, deadzone=0.01):
+def apply_deadzone(value, deadzone=0.1):
     if abs(value) < deadzone:
-        return 0.0  # Ignore small movements
-    return value
+        return 0.0
+        return value
 
-# Track previous values to reduce spamming
 prev_left_value = 0.0
 prev_forward_value = 0.0
 
@@ -50,36 +46,32 @@ try:
         forward_value = apply_deadzone(forward_value)
 
         # Left/Right Movement
-        if left_value < 0 and left_value != prev_left_value:  # Moving left
+        if left_value < 0:  # Moving left
             left_motor.on()  # Turn left motor ON
             right_motor.off()  # Turn right motor OFF
             print(f"Moving left with value {left_value}")
-        elif left_value > 0 and left_value != prev_left_value:  # Moving right
+        elif left_value > 0:  # Moving right
             right_motor.on()  # Turn right motor ON
             left_motor.off()  # Turn left motor OFF
             print(f"Moving right with value {left_value}")
-        elif left_value == 0 and prev_left_value != 0:  # Stopped left/right
+        else:  # Stopped left/right
             left_motor.off()  # Stop left motor
             right_motor.off()  # Stop right motor
             print("Stopped left/right movement.")
 
         # Forward/Reverse Movement
-        if forward_value < 0 and forward_value != prev_forward_value:  # Moving forward
+        if forward_value < 0:  # Moving forward
             forward_motor.on()  # Turn forward motor ON
             reverse_motor.off()  # Turn reverse motor OFF
             print(f"Moving forward with value {forward_value}")
-        elif forward_value > 0 and forward_value != prev_forward_value:  # Moving reverse
+        elif forward_value > 0:  # Moving reverse
             reverse_motor.on()  # Turn reverse motor ON
             forward_motor.off()  # Turn forward motor OFF
             print(f"Moving reverse with value {forward_value}")
-        elif forward_value == 0 and prev_forward_value != 0:  # Stopped forward/reverse
+        else:  # Stopped forward/reverse
             forward_motor.off()  # Stop forward motor
             reverse_motor.off()  # Stop reverse motor
             print("Stopped forward/reverse movement.")
-
-        # Save previous values to avoid spamming
-        prev_left_value = left_value
-        prev_forward_value = forward_value
 
         time.sleep(0.1)
 
