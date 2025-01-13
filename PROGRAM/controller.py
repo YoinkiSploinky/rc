@@ -16,9 +16,9 @@ print("Joystick connected, buenos dias puta!")
 
 # GPIO pins setup
 PIN_LEFT = 12
-PIN_RIGHT = 33
-PIN_FORWARD = 11
-PIN_REVERSE = 13
+PIN_RIGHT = 13
+PIN_FORWARD = 17
+PIN_REVERSE = 18
 
 left_motor = LED(PIN_LEFT)
 right_motor = LED(PIN_RIGHT)
