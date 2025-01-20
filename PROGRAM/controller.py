@@ -15,10 +15,10 @@ joystick = pygame.joystick.Joystick(0)
 joystick.init()
 
 # Define PWM pins (update these with your actual GPIO pin numbers)
-PWM_PIN_FORWARD = 12
-PWM_PIN_REVERSE = 33
-PWM_PIN_LEFT =  11
-PWM_PIN_RIGHT = 13
+PWM_PIN_FORWARD = 18  #gpio12
+PWM_PIN_REVERSE = 13 #gpio33
+PWM_PIN_LEFT = 17 #gpio11
+PWM_PIN_RIGHT = 27 #gpio13
 
 # Initialize PWMOutputDevices
 pwm_forward = PWMOutputDevice(PWM_PIN_FORWARD)
@@ -48,7 +48,7 @@ try:
         # Get joystick axis values (left-right and forward-backward)
         forward_value = joystick.get_axis(1)
         left_value = joystick.get_axis(0)
-        
+
         # Apply deadzone to joystick values
         left_value = apply_deadzone(left_value)
         forward_value = apply_deadzone(forward_value)
