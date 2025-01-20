@@ -15,23 +15,23 @@ joystick = pygame.joystick.Joystick(0)
 joystick.init()
 
 # Define PWM pins (update these with your actual GPIO pin numbers)
-PWM_PIN_LEFT = 12  # GPIO 12 for left motor
-PWM_PIN_RIGHT = 13  # GPIO 13 for right motor
-PWM_PIN_FORWARD = 17  # GPIO 17 for forward motor
-PWM_PIN_REVERSE = 18  # GPIO 18 for reverse motor
+PWM_PIN_FORWARD = 12
+PWM_PIN_REVERSE = 33
+PWM_PIN_LEFT =  11
+PWM_PIN_RIGHT = 13
 
 # Initialize PWMOutputDevices
-pwm_left = PWMOutputDevice(PWM_PIN_LEFT)
-pwm_right = PWMOutputDevice(PWM_PIN_RIGHT)
 pwm_forward = PWMOutputDevice(PWM_PIN_FORWARD)
 pwm_reverse = PWMOutputDevice(PWM_PIN_REVERSE)
+pwm_left = PWMOutputDevice(PWM_PIN_LEFT)
+pwm_right = PWMOutputDevice(PWM_PIN_RIGHT)
 
 # Function to map joystick axis to PWM signal (only for values within deadzone)
 def map_joystick_to_pwm(value, min_value=-1.0, max_value=1.0, min_pwm=0.0, max_pwm=1.0):
     return (value - min_value) / (max_value - min_value) * (max_pwm - min_pwm) + min_pwm
 
 # Function to ignore small joystick movements
-def apply_deadzone(value, deadzone=0.01):
+def apply_deadzone(value, deadzone=0.1):
     if abs(value) < deadzone:
         return 0.0  # Ignore small movements
     return value
@@ -46,9 +46,9 @@ try:
         pygame.event.pump()  # Process events
         
         # Get joystick axis values (left-right and forward-backward)
-        left_value = joystick.get_axis(0)  # Axis 0: Left/Right (X axis)
-        forward_value = joystick.get_axis(1)  # Axis 1: Forward/Backward (Y axis)
-
+        forward_value = joystick.get_axis(1)
+        left_value = joystick.get_axis(0)
+        
         # Apply deadzone to joystick values
         left_value = apply_deadzone(left_value)
         forward_value = apply_deadzone(forward_value)
