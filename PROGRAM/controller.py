@@ -15,7 +15,7 @@ joystick = pygame.joystick.Joystick(0)
 joystick.init()
 
 # Define PWM pins (update these with your actual GPIO pin numbers)
-PWM_PIN_FORWARD = 23  #gpio16
+PWM_PIN_FORWARD = 18  #gpio12
 PWM_PIN_REVERSE = 13 #gpio33
 PWM_PIN_LEFT = 17 #gpio11
 PWM_PIN_RIGHT = 27 #gpio13
